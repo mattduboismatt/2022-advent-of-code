@@ -30,8 +30,11 @@ require 'pry'
 
 MY_SHAPE_POINTS = {
   "X" => 1,
+  rock: 1,
   "Y" => 2,
-  "Z" => 3
+  paper: 2,
+  "Z" => 3,
+  scissors: 3
 }
 
 SHAPE_TO_PLAY = {
@@ -65,13 +68,63 @@ end
 
 input = File.read("#{__dir__}/input.txt")
 
-rounds = input.split("\n").map { |round| { score: 0, shapes: round.split(" ") } }
+rounds = input.split("\n").map { |round| { score1: 0, score2: 0, shapes: round.split(" ") } }
 
-scored_rounds = rounds.each do |round|
-  round[:score] += MY_SHAPE_POINTS[round[:shapes][1]]
-  round[:score] += outcome_points(round[:shapes])
+scored_rounds1 = rounds.each do |round|
+  round[:score1] += MY_SHAPE_POINTS[round[:shapes][1]]
+  round[:score1] += outcome_points(round[:shapes])
 end
 
-total_score = scored_rounds.map { |round| round[:score] }.sum
+total_score1 = scored_rounds1.map { |round| round[:score1] }.sum
 
-puts "part 1 total score: #{total_score}"
+puts "part 1 total score: #{total_score1}"
+
+# --- Part Two ---
+
+# The Elf finishes helping with the tent and sneaks back over to you. "Anyway, the second column says how the round needs to end: X means you need to lose, Y means you need to end the round in a draw, and Z means you need to win. Good luck!"
+
+# The total score is still calculated in the same way, but now you need to figure out what shape to choose so the round ends as indicated. The example above now goes like this:
+
+# In the first round, your opponent will choose Rock (A), and you need the round to end in a draw (Y), so you also choose Rock. This gives you a score of 1 + 3 = 4.
+# In the second round, your opponent will choose Paper (B), and you choose Rock so you lose (X) with a score of 1 + 0 = 1.
+# In the third round, you will defeat your opponent's Scissors with Rock for a score of 1 + 6 = 7.
+# Now that you're correctly decrypting the ultra top secret strategy guide, you would get a total score of 12.
+
+# Following the Elf's instructions for the second column, what would your total score be if everything goes exactly according to your strategy guide?
+
+MY_OUTCOME_POINTS = {
+  "X" => 0,
+  "Y" => 3,
+  "Z" => 6,
+}
+
+def round_to_my_play(shapes)
+  opponent_play = SHAPE_TO_PLAY[shapes[0]]
+  return opponent_play if shapes[1] == "Y"
+
+  case [opponent_play, shapes[1]]
+  in :rock, "X"
+    :scissors
+  in :rock, "Z"
+    :paper
+  in :paper, "X"
+    :rock
+  in :paper, "Z"
+    :scissors
+  in :scissors, "X"
+    :paper
+  in :scissors, "Z"
+    :rock
+  end
+end
+
+
+scored_rounds2 = rounds.each do |round|
+  round[:score2] += MY_OUTCOME_POINTS[round[:shapes][1]]
+  round[:score2] += MY_SHAPE_POINTS[round_to_my_play(round[:shapes])]
+end
+
+total_score2 = scored_rounds2.map { |round| round[:score2] }.sum
+
+puts "part 2 total score: #{total_score2}"
+
