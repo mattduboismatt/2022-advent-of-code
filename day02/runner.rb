@@ -27,3 +27,51 @@ require 'pry'
 # In this example, if you were to follow the strategy guide, you would get a total score of 15 (8 + 1 + 6).
 
 # What would your total score be if everything goes exactly according to your strategy guide?
+
+MY_SHAPE_POINTS = {
+  "X" => 1,
+  "Y" => 2,
+  "Z" => 3
+}
+
+SHAPE_TO_PLAY = {
+  "A" => :rock,
+  "B" => :paper,
+  "C" => :scissors,
+  "X" => :rock,
+  "Y" => :paper,
+  "Z" => :scissors,
+}
+
+def winning_play?(plays)
+  case plays
+  in :scissors, :rock
+    true
+  in :rock, :paper
+    true
+  in :paper, :scissors
+    true
+  else
+    false
+  end
+end
+
+def outcome_points(shapes)
+  plays = shapes.map { |shape| SHAPE_TO_PLAY[shape] }
+  return 3 if plays[0] == plays[1]
+  return 6 if winning_play?(plays)
+  return 0
+end
+
+input = File.read("#{__dir__}/input.txt")
+
+rounds = input.split("\n").map { |round| { score: 0, shapes: round.split(" ") } }
+
+scored_rounds = rounds.each do |round|
+  round[:score] += MY_SHAPE_POINTS[round[:shapes][1]]
+  round[:score] += outcome_points(round[:shapes])
+end
+
+total_score = scored_rounds.map { |round| round[:score] }.sum
+
+puts "part 1 total score: #{total_score}"
