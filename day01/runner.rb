@@ -29,12 +29,9 @@
 
 # Find the Elf carrying the most Calories. How many total Calories is that Elf carrying?
 
-file = File.open("#{__dir__}/input.txt")
-input = file.read
+input = File.read("#{__dir__}/input.txt")
 
 elves_calories = input.split("\n\n").map { |elf_foods| elf_foods.split("\n").map(&:to_i).sum }
 
 puts "Max: #{elves_calories.max}"
 puts "Top three total: #{elves_calories.sort.reverse[0..2].sum}"
-
-file.close
